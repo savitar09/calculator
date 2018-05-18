@@ -18,7 +18,7 @@ class ViewController: UIViewController {
 //
 //    var giaTriBieuThuc = ""
 //
-//    var displayValue:String {
+//    var giaTriHienThi:String {
 //        get {
 //            return lblKetQua.text!
 //        } set {
@@ -49,11 +49,11 @@ class ViewController: UIViewController {
 //            print("chua dong ngoac tron !!!")
 //            return
 //        }
-//        displayValue = thucHien(baiToan: lblBieuThuc.text!)
+//        giaTriHienThi = thucHien(baiToan: lblBieuThuc.text!)
 //    }
 //
 //    @IBAction func xoa(_ sender: Any) {
-//        displayValue = "0"
+//        giaTriHienThi = "0"
 //        lblBieuThuc.text = String("")
 //        lblKetQua.text = String("0")
 //    }
@@ -209,72 +209,134 @@ class ViewController: UIViewController {
 //        return giaTriBieuThuc
 //    }
     
-    @IBOutlet weak var descriptionLabel: UILabel!
-    @IBOutlet weak var displayLabel: UILabel!
+    @IBOutlet weak var moTaBieuThuc: UILabel!
+    @IBOutlet weak var hienThiGiaTri: UILabel!
     
-    @IBOutlet weak var clearButton: UIButton!
+    @IBOutlet weak var nutXoa: UIButton!
     
-    var userIsInTheMiddleOfTyping = false
-    private var displayValue : Double {
+    var dangOGiuaViecNhapGiaTri = false
+    private var giaTriHienThi : Double {
         get {
-            return Double(displayLabel.text!)!
+            return Double(hienThiGiaTri.text!)!
         }
         set {
-            displayLabel.text = newValue.truncatingRemainder(dividingBy: 1) == 0 ? String(format: "%.0f", newValue) : String(newValue)
+            hienThiGiaTri.text = newValue.truncatingRemainder(dividingBy: 1) == 0 ? String(format: "%.0f", newValue) : String(newValue)
         }
     }
     
     private var calculate = Calculate()
     
-    @IBAction private func touchDigit(_ sender: UIButton) {
-        let digit = sender.currentTitle! == "," ? "." : sender.currentTitle!
-        if userIsInTheMiddleOfTyping {
-            let textCurrentlyInDisplay = displayLabel.text!
-            if Double(textCurrentlyInDisplay + digit) != nil {
-                displayLabel.text = textCurrentlyInDisplay + digit
+    @IBAction private func nhapSo(_ sender: UIButton) {
+        let so = sender.currentTitle! == "," ? "." : sender.currentTitle!
+        if dangOGiuaViecNhapGiaTri {
+            let giaTriDangHienThi = hienThiGiaTri.text!
+            if Double(giaTriDangHienThi + so) != nil {
+                hienThiGiaTri.text = giaTriDangHienThi + so
             }
         } else {
-            displayLabel.text = digit
-            clearButton.setTitle("C", for: .normal)
+            hienThiGiaTri.text = so
+            nutXoa.setTitle("C", for: .normal)
         }
-        userIsInTheMiddleOfTyping = true
+        dangOGiuaViecNhapGiaTri = true
     }
     
-    @IBAction private func performOperation(_ sender: UIButton) {
-        if userIsInTheMiddleOfTyping {
-            calculate.setOperand(displayValue)
-            userIsInTheMiddleOfTyping = false
+    @IBAction private func thucHienTinhToan(_ sender: UIButton) {
+        if dangOGiuaViecNhapGiaTri {
+            calculate.caiDatToanTu(giaTriHienThi)
+            dangOGiuaViecNhapGiaTri = false
         }
-        if let mathematiclSymbol = sender.currentTitle {
-            // Debug
-            let currentDateTime = Date()
-            let formatter = DateFormatter()
-            formatter.timeStyle = .medium
-            formatter.dateStyle = .none
-            print("")
-            print(formatter.string(from: currentDateTime))
-            print("***New Operation***\nmathematiclSymbol: \(mathematiclSymbol)")
-            // End debug
-            
-            calculate.performOperation(mathematiclSymbol)
+        if let phepTinhToanHoc = sender.currentTitle {            
+            calculate.thucHienTinhToan(phepTinhToanHoc)
         }
-        displayValue = calculate.result
-        displayDescription()
+        giaTriHienThi = calculate.ketQua
+        hienThiMoTa()
     }
     
-    @IBAction private func clearOrClearAll(_ sender: UIButton) {
-        displayLabel.text = "0"
+    @IBAction private func xoaSoHoacXoaBieuThuc(_ sender: UIButton) {
+        hienThiGiaTri.text = "0"
         if sender.currentTitle == "C" {
-            userIsInTheMiddleOfTyping = false
+            dangOGiuaViecNhapGiaTri = false
             sender.setTitle("AC", for: .normal)
         } else {
-            calculate.clear()
-            descriptionLabel.text = ""
+            calculate.xoaBo()
+            moTaBieuThuc.text = ""
         }
     }
     
-    func displayDescription() {
-        descriptionLabel.text = calculate.description + (calculate.resultIsPending ? "..." : " =")
+    func hienThiMoTa() {
+        moTaBieuThuc.text = calculate.moTa + (calculate.ketQuaXuLy ? "..." : " =")
     }
+    
+//    var toanTu1:Double?
+//    var toanTu2:Double?
+//    var laToanTu1 = false
+//    var laToanTu2 = false
+//
+//    var phepTinh1:String?
+//    var phepTinh2:String?
+//    var laPhepTinh1 = false
+//    var laPhepTinh2 = false
+//
+//    @IBAction func nhanSo(_ sender: Any) {
+//
+//    }
+//    @IBAction func bieuThuc(_ sender: UIButton) {
+//        let toanTu = giaTriHienThi
+//        if !laToanTu1 {
+//            toanTu1 = toanTu
+//            laToanTu1 = true
+//        } else {
+//            if !laToanTu2 {
+//                toanTu2 = toanTu
+//                laToanTu2 = true
+//            }
+//        }
+//
+//        let phepTinh = sender.currentTitle
+//        if !laToanTu1 {
+//            phepTinh1 = phepTinh
+//            laPhepTinh1 = true
+//        } else {
+//            if !laToanTu2 {
+//                phepTinh2 = phepTinh
+//                laToanTu2 = true
+//            } else {
+//                if self.phepTinh1 == "+" || self.phepTinh1 == "-" {
+//                    if self.phepTinh2 == "+" || self.phepTinh2 == "-" {
+//                        if self.phepTinh1 == "+" {
+//                            toanTu1 = toanTu1! + toanTu2!
+//                            toanTu2 = nil
+//                            laToanTu2 = false
+//                            phepTinh1 = phepTinh2
+//                            phepTinh2 = nil
+//                            laPhepTinh2 = false
+//                            toanTu2 = toanTu
+//                            laToanTu2 = true
+//                        } else {
+//                            toanTu1 = toanTu1! - toanTu2!
+//                            toanTu2 = nil
+//                            laToanTu2 = false
+//                            phepTinh1 = phepTinh2
+//                            phepTinh2 = nil
+//                            laPhepTinh2 = false
+//                            toanTu2 = toanTu
+//                            laToanTu2 = true
+//                        }
+//                    } else {
+//                        if self.phepTinh2 == "*" || self.phepTinh2 == "/" {
+//                            if self.phepTinh1 == "*" {
+//
+//                    }
+//
+//                }
+//
+//            }
+//        }
+//
+//    }
+//
+//    func phepToan(soThu1:Double, soThu2:Double) -> Double {
+//        <#function body#>
+//    }
 }
 

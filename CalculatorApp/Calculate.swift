@@ -8,336 +8,288 @@
 
 import Foundation
 
-func factorial(of factorialNumber: Double) -> Double {
-    if factorialNumber == 0 {
-        return 1
-    }
-    return factorialNumber * factorial(of: factorialNumber - 1)
-}
-
 class Calculate {
-    private var internalProgram = [String]()
+    private var chuongTrinhTrong = [String]()
     
-    private var accumulator: Double?
-    private var descriptionAccumulator = ""
+    private var bieuThuc: Double?
+    private var bieuThucMoTa = ""
     
-    private var beforeParenthesisProgram = [Any]()
-    private var beforeParenthesisDescriptionAccumulator: [Any] = []
+    private var chuongTrinhTruocDauNgoacDon = [Any]()
+    private var chuongTrinhTruocDauNgoacDonBieuThucMoTa: [Any] = []
     
-    private var beforeBinaryOperationProgram = [PendingBinaryOperationInfo]()
-    private var beforeBinaryOperationDescriptionAccumulator: [String] = []
+    private var truocChuongTrinhTinhToanNhiPhan = [phepTinhNhiPhanDangChoXuLy]()
+    private var truocKhiBieuThucMoTaTinhToanNhiPhan: [String] = []
     
-    private var pending: PendingBinaryOperationInfo?
-    private struct PendingBinaryOperationInfo {
-        var binaryFuntction: (Double, Double) -> Double
-        var firstOperand: Double
-        var descriptionFunction: ((String, String) -> String)?
-        var descriptionOperand: String?
-        var priority: Int
+    private var dangXuLy: phepTinhNhiPhanDangChoXuLy?
+    private struct phepTinhNhiPhanDangChoXuLy {
+        var hamNhiPhan: (Double, Double) -> Double
+        var toanTuDauTien: Double
+        var moTaHamTinhToan: ((String, String) -> String)?
+        var moTaToanTu: String?
+        var uuTien: Int
     }
     
-    var resultIsPending: Bool {
+    var ketQuaXuLy: Bool {
         get {
-            return pending != nil || !beforeParenthesisProgram.isEmpty || !beforeParenthesisDescriptionAccumulator.isEmpty || !beforeBinaryOperationProgram.isEmpty
+            return dangXuLy != nil || !chuongTrinhTruocDauNgoacDon.isEmpty || !chuongTrinhTruocDauNgoacDonBieuThucMoTa.isEmpty || !truocChuongTrinhTinhToanNhiPhan.isEmpty
         }
     }
     
-    var description: String {
+    var moTa: String {
         get {
-            if resultIsPending && pending != nil, pending!.descriptionFunction != nil && pending!.descriptionOperand != nil {
-                print("beforeBinaryOperationDescriptionAccumulator: \(beforeBinaryOperationDescriptionAccumulator)")
-                let conditionalDescriptionAccumulator = pending!.descriptionOperand != descriptionAccumulator && pending?.descriptionOperand != "(\(descriptionAccumulator))" ? descriptionAccumulator : ""
-                //
-                let beforeParenthesis = beforeParenthesisDescriptionAccumulator.reduce("") {
+            if ketQuaXuLy && dangXuLy != nil, dangXuLy!.moTaHamTinhToan != nil && dangXuLy!.moTaToanTu != nil {
+                print("truocKhiBieuThucMoTaTinhToanNhiPhan: \(truocKhiBieuThucMoTaTinhToanNhiPhan)")
+                let dieuKienBieuThucMoTa = dangXuLy!.moTaToanTu != bieuThucMoTa && dangXuLy?.moTaToanTu != "(\(bieuThucMoTa))" ? bieuThucMoTa : ""
+                let truocDauNgoacDon = chuongTrinhTruocDauNgoacDonBieuThucMoTa.reduce("") {
                     var toAdd = ""
-                    if let savedPendingOperations = $1 as? [String] {
-                        toAdd = savedPendingOperations.reduce("") {$0 + $1}
+                    if let luuTinhToanDangXuLy = $1 as? [String] {
+                        toAdd = luuTinhToanDangXuLy.reduce("") {$0 + $1}
                     } else {
                         toAdd = $1 as! String
                     }
                     return $0 + toAdd
                 }
-                print("count: \(beforeParenthesisDescriptionAccumulator.count)")
-                print(beforeParenthesisDescriptionAccumulator)
-                return beforeParenthesis + beforeBinaryOperationDescriptionAccumulator.reduce("") {$0 + $1} + pending!.descriptionFunction!(pending!.descriptionOperand!, conditionalDescriptionAccumulator)
+                print("count: \(chuongTrinhTruocDauNgoacDonBieuThucMoTa.count)")
+                print(chuongTrinhTruocDauNgoacDonBieuThucMoTa)
+                return truocDauNgoacDon + truocKhiBieuThucMoTaTinhToanNhiPhan.reduce("") {$0 + $1} + dangXuLy!.moTaHamTinhToan!(dangXuLy!.moTaToanTu!, dieuKienBieuThucMoTa)
             } else {
-                print("beforeBinaryOperationDescriptionAccumulator: \(beforeBinaryOperationDescriptionAccumulator)")
-                let beforeParenthesis = beforeParenthesisDescriptionAccumulator.reduce("") {
+                print("truocKhiBieuThucMoTaTinhToanNhiPhan: \(truocKhiBieuThucMoTaTinhToanNhiPhan)")
+                let truocDauNgoacDon = chuongTrinhTruocDauNgoacDonBieuThucMoTa.reduce("") {
                     var toAdd = ""
-                    if let savedPendingOperations = $1 as? [String] {
-                        toAdd = savedPendingOperations.reduce("") {$0 + $1}
+                    if let luuTinhToanDangXuLy = $1 as? [String] {
+                        toAdd = luuTinhToanDangXuLy.reduce("") {$0 + $1}
                     } else {
                         toAdd = $1 as! String
                     }
                     return $0 + toAdd
                 }
-                print("count: \(beforeParenthesisDescriptionAccumulator.count)")
-                print(beforeParenthesisDescriptionAccumulator)
-                return beforeParenthesis + beforeBinaryOperationDescriptionAccumulator.reduce("") {$0 + $1} + descriptionAccumulator
+                print("count: \(chuongTrinhTruocDauNgoacDonBieuThucMoTa.count)")
+                print(chuongTrinhTruocDauNgoacDonBieuThucMoTa)
+                return truocDauNgoacDon + truocKhiBieuThucMoTaTinhToanNhiPhan.reduce("") {$0 + $1} + bieuThucMoTa
             }
         }
     }
     
-    var useRadians: Bool = false {
-        didSet {
-            if useRadians {
-                operations.updateValue(Operation.unaryOperations(function: sin, discriptionalFunction: {"sin(rad:\($0))"}, parenthesisByDefault: true), forKey: "sin")
-                operations.updateValue(Operation.unaryOperations(function: cos, discriptionalFunction: {"cos(rad:\($0))"}, parenthesisByDefault: true), forKey: "cos")
-                
-            } else {
-                operations.updateValue(Operation.unaryOperations(function: {__sinpi($0 / 180)}, discriptionalFunction: {"sin(\($0))"}, parenthesisByDefault: true), forKey: "sin")
-                operations.updateValue(Operation.unaryOperations(function: {__cospi($0 / 180)}, discriptionalFunction: {"cos(\($0))"}, parenthesisByDefault: true), forKey: "cos")
-            }
-        }
-    }
-    
-    private enum Operation {
+    private enum phepToan {
         case constant(Double)
         case constantGenerated(by: () -> Double)
-        case unaryOperations(function: (Double) -> Double, discriptionalFunction: (String) -> String, parenthesisByDefault: Bool)
-        case binaryOperation(function: (Double, Double) -> Double, discriptionalFunction: (String, String) -> String, priority: Int)
-        case equals
-        case openParenthesis
-        case closeParenthesis
+        case tinhToanThuanTuy(phuongThuc: (Double) -> Double, hamTinhToan: (String) -> String, dauNgoacDonMacDinh: Bool)
+        case tinhToanNhiPhan(phuongThuc: (Double, Double) -> Double, hamTinhToan: (String, String) -> String, uuTien: Int)
+        case ketQua
+        case moNgoacDon
+        case dongNgoacDon
     }
     
-    private var operations: [String: Operation] = [
-        "%" : Operation.unaryOperations(function: {$0 / 100}, discriptionalFunction: {"\($0)%"}, parenthesisByDefault: false),
-        "log₂" : Operation.unaryOperations(function: {log2($0)}, discriptionalFunction: {"log₂(\($0))"}, parenthesisByDefault: true),
-        "sin" : Operation.unaryOperations(function: {__sinpi($0 / 180)}, discriptionalFunction: {"sin(\($0))"}, parenthesisByDefault: true),
-        "cos" : Operation.unaryOperations(function: {__cospi($0 / 180)}, discriptionalFunction: {"cos(\($0))"}, parenthesisByDefault: true),
-        "×" : Operation.binaryOperation(function: {$0 * $1}, discriptionalFunction: {"\($0) × \($1)"}, priority: 1),
-        "÷" : Operation.binaryOperation(function: {$0 / $1}, discriptionalFunction: {"\($0) / \($1)"}, priority: 1),
-        "+" : Operation.binaryOperation(function: {$0 + $1}, discriptionalFunction: {"\($0) + \($1)"}, priority: 0),
-        "−" : Operation.binaryOperation(function: {$0 - $1}, discriptionalFunction: {"\($0) - \($1)"}, priority: 0),
-        "=" : Operation.equals,
-        "(" : Operation.openParenthesis,
-        ")" : Operation.closeParenthesis
+    private var tinhToan: [String: phepToan] = [
+        "%" : phepToan.tinhToanThuanTuy(phuongThuc: {$0 / 100}, hamTinhToan: {"\($0)%"}, dauNgoacDonMacDinh: false),
+        "log₂" : phepToan.tinhToanThuanTuy(phuongThuc: {log2($0)}, hamTinhToan: {"log₂(\($0))"}, dauNgoacDonMacDinh: true),
+        "sin" : phepToan.tinhToanThuanTuy(phuongThuc: {__sinpi($0 / 180)}, hamTinhToan: {"sin(\($0))"}, dauNgoacDonMacDinh: true),
+        "cos" : phepToan.tinhToanThuanTuy(phuongThuc: {__cospi($0 / 180)}, hamTinhToan: {"cos(\($0))"}, dauNgoacDonMacDinh: true),
+        "×" : phepToan.tinhToanNhiPhan(phuongThuc: {$0 * $1}, hamTinhToan: {"\($0) × \($1)"}, uuTien: 1),
+        "÷" : phepToan.tinhToanNhiPhan(phuongThuc: {$0 / $1}, hamTinhToan: {"\($0) / \($1)"}, uuTien: 1),
+        "+" : phepToan.tinhToanNhiPhan(phuongThuc: {$0 + $1}, hamTinhToan: {"\($0) + \($1)"}, uuTien: 0),
+        "−" : phepToan.tinhToanNhiPhan(phuongThuc: {$0 - $1}, hamTinhToan: {"\($0) - \($1)"}, uuTien: 0),
+        "=" : phepToan.ketQua,
+        "(" : phepToan.moNgoacDon,
+        ")" : phepToan.dongNgoacDon
     ]
     
-    var result: Double {
+    var ketQua: Double {
         get {
-            return accumulator ?? 0
+            return bieuThuc ?? 0
         }
     }
     
-    func clear(all: Bool = true) {
-        pending = nil
+    func xoaBo(all: Bool = true) {
+        dangXuLy = nil
         if all {
-            internalProgram.removeAll()
-            beforeParenthesisProgram.removeAll()
-            beforeParenthesisDescriptionAccumulator = []
-            accumulator = nil
-            descriptionAccumulator = ""
-            beforeBinaryOperationProgram = []
-            beforeBinaryOperationDescriptionAccumulator = []
+            chuongTrinhTrong.removeAll()
+            chuongTrinhTruocDauNgoacDon.removeAll()
+            chuongTrinhTruocDauNgoacDonBieuThucMoTa = []
+            bieuThuc = nil
+            bieuThucMoTa = ""
+            truocChuongTrinhTinhToanNhiPhan = []
+            truocKhiBieuThucMoTaTinhToanNhiPhan = []
         }
     }
     
-    func setOperand(_ operand: Double) {
-        accumulator = operand
-        internalProgram.append("\(operand)")
-        descriptionAccumulator = String(format: "%g", operand)
+    func caiDatToanTu(_ toanTu: Double) {
+        bieuThuc = toanTu
+        chuongTrinhTrong.append("\(toanTu)")
+        bieuThucMoTa = String(format: "%g", toanTu)
     }
     
-    private func descriptionAccumulatorConditionallyWrapped(priority: Int? = nil) -> String {
-        if !resultIsPending, (priority != nil ? priority! > 0 : true) {
-            if Double(descriptionAccumulator) == nil {
-                if internalProgram.count > 1 {
-                    let secondLastProgramElement = internalProgram[internalProgram.count - 2]
-                    if let secondElementFunction = operations[secondLastProgramElement], case .unaryOperations(_, _, _) = secondElementFunction {
-                        if priority != nil {
-                            return "\(descriptionAccumulator == "" ? "0" : descriptionAccumulator)"
+    private func moTaDieuKienGoiBieuThuc(uuTien: Int? = nil) -> String {
+        if !ketQuaXuLy, (uuTien != nil ? uuTien! > 0 : true) {
+            if Double(bieuThucMoTa) == nil {
+                if chuongTrinhTrong.count > 1 {
+                    let hamPhanTuThu2CuoiCung = chuongTrinhTrong[chuongTrinhTrong.count - 2]
+                    if let hamPhanTuThu2 = tinhToan[hamPhanTuThu2CuoiCung], case .tinhToanThuanTuy(_, _, _) = hamPhanTuThu2 {
+                        if uuTien != nil {
+                            return "\(bieuThucMoTa == "" ? "0" : bieuThucMoTa)"
                         }
                     }
                 }
                 
-                if let firstCharacter = descriptionAccumulator.characters.first,
-                    let lastCharacter = descriptionAccumulator.characters.last,
-                    (String(firstCharacter) != "(" || String(lastCharacter) != ")") {
-                    return "(\(descriptionAccumulator == "" ? "0" : descriptionAccumulator))"
+                if let kyTuDauTien = bieuThucMoTa.characters.first,
+                    let kyTuCuoiCung = bieuThucMoTa.characters.last,
+                    (String(kyTuDauTien) != "(" || String(kyTuCuoiCung) != ")") {
+                    return "(\(bieuThucMoTa == "" ? "0" : bieuThucMoTa))"
                 }
             }
         }
-        return "\(descriptionAccumulator == "" ? "0" : descriptionAccumulator)"
+        return "\(bieuThucMoTa == "" ? "0" : bieuThucMoTa)"
     }
     
-    private func executePendingBinaryOperation() {
+    private func thucThiPhepToanNhiPhanDangChoXuLy() {
         
-        // Debug
-        print("***executePendingBinaryOperations***")
-        print("execute pending: \(pending) with accumulator: \(accumulator)")
-        print("Description at execute Pending: \(descriptionAccumulator)")
-        // End debug
-        
-        if let pending = self.pending {
-            accumulator = pending.binaryFuntction(pending.firstOperand, accumulator!)
-            if let descriptionOperand = pending.descriptionOperand, let descriptionFunction = pending.descriptionFunction {
-                print("Description Function: \(dump(descriptionFunction))")
-                print("Description Operand: \(descriptionOperand)")
-                descriptionAccumulator = descriptionFunction(descriptionOperand, "\(descriptionAccumulator)")
+        if let dangXuLy = self.dangXuLy {
+            bieuThuc = dangXuLy.hamNhiPhan(dangXuLy.toanTuDauTien, bieuThuc!)
+            if let moTaToanTu = dangXuLy.moTaToanTu, let moTaHamTinhToan = dangXuLy.moTaHamTinhToan {
+                print("moTa phuongThuc: \(dump(moTaHamTinhToan))")
+                print("moTa toanTu: \(moTaToanTu)")
+                bieuThucMoTa = moTaHamTinhToan(moTaToanTu, "\(bieuThucMoTa)")
             }
-            self.pending = nil
+            self.dangXuLy = nil
         }
     }
     
-    func performOperation(_ symbol: String) {
-        internalProgram.append(symbol)
+    func thucHienTinhToan(_ kyHieuPhepToan: String) {
+        chuongTrinhTrong.append(kyHieuPhepToan)
         
-        // Debug
-        print("***Perform Operation***")
-        print("brain.internalProgram: \(internalProgram)")
-        print("accumulator before Opeation: \(accumulator)")
-        print("descriptionAccumulator: \(descriptionAccumulator)")
-        print("pending? \(pending)")
-        // End Debug
-        
-        if let operation = operations[symbol] {
-            switch operation {
+        if let phepToan = tinhToan[kyHieuPhepToan] {
+            switch phepToan {
             case .constant(let value):
-                accumulator = value
-                descriptionAccumulator = symbol
-            case .constantGenerated(let function):
-                accumulator = function()
-                descriptionAccumulator = symbol
-            case .unaryOperations(let unaryFunction, let descriptionFunction, let parenthesisByDefault):
-                if internalProgram.count > 2 {
-                    let secondLastProgramElement = internalProgram[internalProgram.count - 2]
-                    if let secondElementFunction = operations[secondLastProgramElement], case .binaryOperation(_, _, _) = secondElementFunction {
-                        pending = nil
-                        internalProgram.remove(at: internalProgram.count - 2)
-                        debugPrint("Binary operation is followed by another operation, so binary operation will been removed")
+                bieuThuc = value
+                bieuThucMoTa = kyHieuPhepToan
+            case .constantGenerated(let phuongThuc):
+                bieuThuc = phuongThuc()
+                bieuThucMoTa = kyHieuPhepToan
+            case .tinhToanThuanTuy(let bieuThucThuanTuy, let moTaHamTinhToan, let dauNgoacDonMacDinh):
+                if chuongTrinhTrong.count > 2 {
+                    let hamPhanTuThu2CuoiCung = chuongTrinhTrong[chuongTrinhTrong.count - 2]
+                    if let hamPhanTuThu2 = tinhToan[hamPhanTuThu2CuoiCung], case .tinhToanNhiPhan(_, _, _) = hamPhanTuThu2 {
+                        dangXuLy = nil
+                        chuongTrinhTrong.remove(at: chuongTrinhTrong.count - 2)
+                        debugPrint("Binary phepToan is followed by another phepToan, so binary phepToan will been removed")
                     }
                 }
-                self.accumulator = unaryFunction(accumulator ?? 0)
-                print("unaryOperation Accumulator: \(self.accumulator)")
-                descriptionAccumulator = descriptionFunction(parenthesisByDefault ? (descriptionAccumulator == "" ? "0" : descriptionAccumulator) : self.descriptionAccumulatorConditionallyWrapped())
-            case .binaryOperation(let function, let descriptionFunction, let currentPriority):
-                if internalProgram.count > 1 {
-                    let secondLastProgramElement = internalProgram[internalProgram.count - 2]
-                    if let secondElementFunction = operations[secondLastProgramElement], case .binaryOperation(_, _, _) = secondElementFunction {
-                        pending?.binaryFuntction = function
-                        pending?.descriptionFunction = descriptionFunction
-                        pending?.priority = currentPriority
-                        internalProgram.remove(at: internalProgram.count - 2)
-                        debugPrint("Operation is followed by operation, so last operation has been ignored")
+                self.bieuThuc = bieuThucThuanTuy(bieuThuc ?? 0)
+                print("phepToanThuanTuy bieuThuc: \(self.bieuThuc)")
+                bieuThucMoTa = moTaHamTinhToan(dauNgoacDonMacDinh ? (bieuThucMoTa == "" ? "0" : bieuThucMoTa) : self.moTaDieuKienGoiBieuThuc())
+            case .tinhToanNhiPhan(let phuongThuc, let moTaHamTinhToan, let uuTienHienTai):
+                if chuongTrinhTrong.count > 1 {
+                    let hamPhanTuThu2CuoiCung = chuongTrinhTrong[chuongTrinhTrong.count - 2]
+                    if let hamPhanTuThu2 = tinhToan[hamPhanTuThu2CuoiCung], case .tinhToanNhiPhan(_, _, _) = hamPhanTuThu2 {
+                        dangXuLy?.hamNhiPhan = phuongThuc
+                        dangXuLy?.moTaHamTinhToan = moTaHamTinhToan
+                        dangXuLy?.uuTien = uuTienHienTai
+                        chuongTrinhTrong.remove(at: chuongTrinhTrong.count - 2)
+                        debugPrint("phepToan is followed by phepToan, so last phepToan has been ignored")
                         break
                     }
                 }
-                if let pending = pending, pending.priority < currentPriority {
-                    print("1. beforeBinaryOperationDescriptionAccumulator: \(beforeBinaryOperationDescriptionAccumulator)")
-                    beforeBinaryOperationDescriptionAccumulator.append(pending.descriptionFunction!(pending.descriptionOperand!, ""))
-                    beforeBinaryOperationProgram.append(pending)
+                if let dangXuLy = dangXuLy, dangXuLy.uuTien < uuTienHienTai {
+                    print("1. truocKhiBieuThucMoTaTinhToanNhiPhan: \(truocKhiBieuThucMoTaTinhToanNhiPhan)")
+                    truocKhiBieuThucMoTaTinhToanNhiPhan.append(dangXuLy.moTaHamTinhToan!(dangXuLy.moTaToanTu!, ""))
+                    truocChuongTrinhTinhToanNhiPhan.append(dangXuLy)
                     
-                    print("2. beforeBinaryOperationDescriptionAccumulator: \(beforeBinaryOperationDescriptionAccumulator)")
+                    print("2. truocKhiBieuThucMoTaTinhToanNhiPhan: \(truocKhiBieuThucMoTaTinhToanNhiPhan)")
                 } else {
-                    executePendingBinaryOperation()
-                    if !beforeBinaryOperationProgram.isEmpty {
-                        for index in 0..<beforeBinaryOperationProgram.count {
+                    thucThiPhepToanNhiPhanDangChoXuLy()
+                    if !truocChuongTrinhTinhToanNhiPhan.isEmpty {
+                        for index in 0..<truocChuongTrinhTinhToanNhiPhan.count {
                             print("index: \(index)")
-                            let savedPending = beforeBinaryOperationProgram.last!
-                            if savedPending.priority < currentPriority {
+                            let dangXuLyDuocLuu = truocChuongTrinhTinhToanNhiPhan.last!
+                            if dangXuLyDuocLuu.uuTien < uuTienHienTai {
                                 break
                             }
-                            accumulator = savedPending.binaryFuntction(savedPending.firstOperand, (accumulator ?? 0))
-                            beforeBinaryOperationProgram.removeLast()
-                            descriptionAccumulator = beforeBinaryOperationDescriptionAccumulator.removeLast() + descriptionAccumulator
+                            bieuThuc = dangXuLyDuocLuu.hamNhiPhan(dangXuLyDuocLuu.toanTuDauTien, (bieuThuc ?? 0))
+                            truocChuongTrinhTinhToanNhiPhan.removeLast()
+                            bieuThucMoTa = truocKhiBieuThucMoTaTinhToanNhiPhan.removeLast() + bieuThucMoTa
                         }
                     }
                 }
-                pending = PendingBinaryOperationInfo(
-                    binaryFuntction: function, firstOperand: accumulator ?? 0,
-                    descriptionFunction: descriptionFunction, descriptionOperand: self.descriptionAccumulatorConditionallyWrapped(priority: currentPriority),
-                    priority: currentPriority)
-            case .equals:
-                print("equals: \(internalProgram)")
-                executePendingBinaryOperation()
-                if !beforeBinaryOperationProgram.isEmpty {
-                    let _ = beforeBinaryOperationProgram.reversed().map { accumulator = $0.binaryFuntction($0.firstOperand, accumulator!) }
+                dangXuLy = phepTinhNhiPhanDangChoXuLy(
+                    hamNhiPhan: phuongThuc, toanTuDauTien: bieuThuc ?? 0,
+                    moTaHamTinhToan: moTaHamTinhToan, moTaToanTu: self.moTaDieuKienGoiBieuThuc(uuTien: uuTienHienTai),
+                    uuTien: uuTienHienTai)
+            case .ketQua:
+                print("ketQua: \(chuongTrinhTrong)")
+                thucThiPhepToanNhiPhanDangChoXuLy()
+                if !truocChuongTrinhTinhToanNhiPhan.isEmpty {
+                    let _ = truocChuongTrinhTinhToanNhiPhan.reversed().map { bieuThuc = $0.hamNhiPhan($0.toanTuDauTien, bieuThuc!) }
                 }
-                descriptionAccumulator = beforeBinaryOperationDescriptionAccumulator.reduce("") {$0 + $1} + descriptionAccumulator
-                beforeBinaryOperationDescriptionAccumulator.removeAll()
-                beforeBinaryOperationProgram.removeAll()
-                if !beforeParenthesisProgram.isEmpty {
-                    internalProgram.removeLast()
-                    performOperation(")")
+                bieuThucMoTa = truocKhiBieuThucMoTaTinhToanNhiPhan.reduce("") {$0 + $1} + bieuThucMoTa
+                truocKhiBieuThucMoTaTinhToanNhiPhan.removeAll()
+                truocChuongTrinhTinhToanNhiPhan.removeAll()
+                if !chuongTrinhTruocDauNgoacDon.isEmpty {
+                    chuongTrinhTrong.removeLast()
+                    thucHienTinhToan(")")
                 }
                 
-            case .openParenthesis:
-                print("***.openParenthesis***")
-                print("accumulator in parethesis: \(accumulator)")
-                if internalProgram.count > 1 {
-                    let secondLastProgramElement = internalProgram[internalProgram.count - 2]
-                    var isBinaryOperation = false
-                    if let parenthesisOperation = operations[secondLastProgramElement], case .binaryOperation(_, _, _) = parenthesisOperation {
-                        isBinaryOperation = true
+            case .moNgoacDon:
+                print("***.moNgoacDon***")
+                print("bieuThuc in parethesis: \(bieuThuc)")
+                if chuongTrinhTrong.count > 1 {
+                    let hamPhanTuThu2CuoiCung = chuongTrinhTrong[chuongTrinhTrong.count - 2]
+                    var laPhepToanNhiPhan = false
+                    if let tinhToanTrongNgoacDon = tinhToan[hamPhanTuThu2CuoiCung], case .tinhToanNhiPhan(_, _, _) = tinhToanTrongNgoacDon {
+                        laPhepToanNhiPhan = true
                     }
-                    if secondLastProgramElement == "=" || isBinaryOperation {
-                        if !beforeBinaryOperationProgram.isEmpty {
-                            beforeParenthesisProgram.append( beforeBinaryOperationProgram as Any )
-                            beforeBinaryOperationProgram.removeAll()
-                            beforeParenthesisDescriptionAccumulator.append( beforeBinaryOperationDescriptionAccumulator )
-                            beforeBinaryOperationDescriptionAccumulator.removeAll()
+                    if hamPhanTuThu2CuoiCung == "=" || laPhepToanNhiPhan {
+                        if !truocChuongTrinhTinhToanNhiPhan.isEmpty {
+                            chuongTrinhTruocDauNgoacDon.append( truocChuongTrinhTinhToanNhiPhan as Any )
+                            truocChuongTrinhTinhToanNhiPhan.removeAll()
+                            chuongTrinhTruocDauNgoacDonBieuThucMoTa.append( truocKhiBieuThucMoTaTinhToanNhiPhan )
+                            truocKhiBieuThucMoTaTinhToanNhiPhan.removeAll()
                         }
-                        if let pending = pending, let pendingDescriptionFunction = pending.descriptionFunction, let pendingDescriptionOperand = pending.descriptionOperand {
-                            beforeParenthesisProgram.append( self.pending as Any)
-                            beforeParenthesisDescriptionAccumulator.append( pendingDescriptionFunction(pendingDescriptionOperand, "(") )
+                        if let dangXuLy = dangXuLy, let moTaHamDangXuLy = dangXuLy.moTaHamTinhToan, let moTaToanTuDangXuLy = dangXuLy.moTaToanTu {
+                            chuongTrinhTruocDauNgoacDon.append( self.dangXuLy as Any)
+                            chuongTrinhTruocDauNgoacDonBieuThucMoTa.append( moTaHamDangXuLy(moTaToanTuDangXuLy, "(") )
                         } else {
-                            beforeParenthesisDescriptionAccumulator.append("(")
+                            chuongTrinhTruocDauNgoacDonBieuThucMoTa.append("(")
                         }
-                        descriptionAccumulator = ""
-                        pending = nil
+                        bieuThucMoTa = ""
+                        dangXuLy = nil
                     } else {
-                        internalProgram.removeLast()
+                        chuongTrinhTrong.removeLast()
                     }
                 } else {
-                    beforeParenthesisDescriptionAccumulator.append("(")
+                    chuongTrinhTruocDauNgoacDonBieuThucMoTa.append("(")
                 }
-                print("savedBeforeParenthesis: \(beforeParenthesisProgram)")
-            case .closeParenthesis:
-                if beforeParenthesisProgram.isEmpty && beforeParenthesisDescriptionAccumulator.isEmpty {
-                    internalProgram.removeLast()
+                print("savedBeforeParenthesis: \(chuongTrinhTruocDauNgoacDon)")
+            case .dongNgoacDon:
+                if chuongTrinhTruocDauNgoacDon.isEmpty && chuongTrinhTruocDauNgoacDonBieuThucMoTa.isEmpty {
+                    chuongTrinhTrong.removeLast()
                     break
                 }
-                descriptionAccumulator += ")"
-                executePendingBinaryOperation()
-                if !beforeBinaryOperationProgram.isEmpty {
-                    let _ = beforeBinaryOperationProgram.reversed().map { accumulator = $0.binaryFuntction($0.firstOperand, accumulator!) }
-                    beforeBinaryOperationProgram.removeAll()
-                    self.descriptionAccumulator = beforeBinaryOperationDescriptionAccumulator.reduce("") {$0 + $1} + self.descriptionAccumulator
-                    beforeBinaryOperationDescriptionAccumulator.removeAll()
+                bieuThucMoTa += ")"
+                thucThiPhepToanNhiPhanDangChoXuLy()
+                if !truocChuongTrinhTinhToanNhiPhan.isEmpty {
+                    let _ = truocChuongTrinhTinhToanNhiPhan.reversed().map { bieuThuc = $0.hamNhiPhan($0.toanTuDauTien, bieuThuc!) }
+                    truocChuongTrinhTinhToanNhiPhan.removeAll()
+                    self.bieuThucMoTa = truocKhiBieuThucMoTaTinhToanNhiPhan.reduce("") {$0 + $1} + self.bieuThucMoTa
+                    truocKhiBieuThucMoTaTinhToanNhiPhan.removeAll()
                 }
-                if !beforeParenthesisProgram.isEmpty && !beforeParenthesisDescriptionAccumulator.isEmpty {
-                    if let beforeParenthesisPending = beforeParenthesisProgram.removeLast() as? PendingBinaryOperationInfo {
-                        self.pending = beforeParenthesisPending
-                        beforeParenthesisDescriptionAccumulator.removeLast()
+                if !chuongTrinhTruocDauNgoacDon.isEmpty && !chuongTrinhTruocDauNgoacDonBieuThucMoTa.isEmpty {
+                    if let choXuLyTruocDauNgoacDon = chuongTrinhTruocDauNgoacDon.removeLast() as? phepTinhNhiPhanDangChoXuLy {
+                        self.dangXuLy = choXuLyTruocDauNgoacDon
+                        chuongTrinhTruocDauNgoacDonBieuThucMoTa.removeLast()
                     }
-                    if !beforeParenthesisProgram.isEmpty, let beforeParenthesisBinaryOperationProgram = beforeParenthesisProgram.removeLast() as? [PendingBinaryOperationInfo] {
-                        self.beforeBinaryOperationProgram = beforeParenthesisBinaryOperationProgram
+                    if !chuongTrinhTruocDauNgoacDon.isEmpty, let chuongTrinhTinhToanNhiPhanTruocDauNgoacDon = chuongTrinhTruocDauNgoacDon.removeLast() as? [phepTinhNhiPhanDangChoXuLy] {
+                        self.truocChuongTrinhTinhToanNhiPhan = chuongTrinhTinhToanNhiPhanTruocDauNgoacDon
                         
-                        if let beforeParenthesisBinaryOperationDescriptionAccumulator = beforeParenthesisDescriptionAccumulator.removeLast() as? [String] {
-                            self.beforeBinaryOperationDescriptionAccumulator = beforeParenthesisBinaryOperationDescriptionAccumulator + self.beforeBinaryOperationDescriptionAccumulator
+                        if let bieuThucMoTaTinhToanNhiPhanTruocDauNgoacDon = chuongTrinhTruocDauNgoacDonBieuThucMoTa.removeLast() as? [String] {
+                            self.truocKhiBieuThucMoTaTinhToanNhiPhan = bieuThucMoTaTinhToanNhiPhanTruocDauNgoacDon + self.truocKhiBieuThucMoTaTinhToanNhiPhan
                         }
                     }
-                    self.descriptionAccumulator = "(" + self.descriptionAccumulator
-                } else if !beforeParenthesisDescriptionAccumulator.isEmpty, let beforeParenthesisDescription = beforeParenthesisDescriptionAccumulator.removeLast() as? String {
-                    descriptionAccumulator = beforeParenthesisDescription + descriptionAccumulator
+                    self.bieuThucMoTa = "(" + self.bieuThucMoTa
+                } else if !chuongTrinhTruocDauNgoacDonBieuThucMoTa.isEmpty, let moTaTruocDauNgoacDon = chuongTrinhTruocDauNgoacDonBieuThucMoTa.removeLast() as? String {
+                    bieuThucMoTa = moTaTruocDauNgoacDon + bieuThucMoTa
                 }
             }
         }
-        
-        // Debug
-        print("***End of Operation***")
-        print("calculated accumulator: \(accumulator)")
-        print("savedBeforeParenthesis: \(beforeParenthesisProgram)")
-        print("internalProgram: \(internalProgram)")
-        print("pending: \(pending)")
-        print("descriptionAccumulator: \(descriptionAccumulator)")
-        print("beforeBinaryOperationProgram: \(beforeBinaryOperationProgram.count)")
-        print("result: \(result)")
-        print("description: \(description)")
-        print("*** ***\n\n")
-        // End debug
     }
     
 }
